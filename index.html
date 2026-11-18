@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jeux de Pause</title>
+<meta name="description" content="Deux petits jeux à lancer en attendant quelque chose : Pile de Planches et Guerre des Vessies.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bowlby+One&family=Bungee&family=Patrick+Hand&family=Rubik:wght@400;600&display=swap">
+<style>
+/* Layout: a short header, then two game cards side by side that stack on phones */
+:root{
+  --bg:#1b1511; --panel:#251d17; --line:#3d3027; --ink:#f6ecd8; --muted:#b9a68e;
+  --saw:#f2b33d; --pee:#f4d73a;
+  --display:"Bowlby One","Arial Black",Impact,sans-serif;
+  --pixel:"Bungee","Arial Black",Impact,sans-serif;
+  --body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:56px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-direction:column;gap:10px;margin-bottom:36px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(36px,6vw,60px);line-height:1;margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:56ch}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px}
+.game{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none;transition:transform .15s ease,border-color .15s ease}
+.game:hover{transform:translateY(-3px);border-color:var(--muted)}
+.game:focus-visible{outline:3px solid var(--saw);outline-offset:3px}
+.thumb{aspect-ratio:16/9;max-width:100%;position:relative;overflow:hidden;background:#000}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+.body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:8px;flex:1}
+.game h2{margin:0;font-weight:400;font-size:26px;line-height:1.1}
+.planches h2{font-family:var(--display);color:var(--saw)}
+.vessies h2{font-family:var(--pixel);color:var(--pee)}
+.game p{margin:0;color:var(--muted)}
+.meta{margin-top:auto;padding-top:10px;display:flex;flex-wrap:wrap;gap:8px;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.meta span{border:1px solid var(--line);padding:3px 8px;border-radius:4px;color:var(--ink)}
+.play{margin-left:auto;color:var(--bg)!important;border-color:transparent!important}
+.planches .play{background:var(--saw)}
+.vessies .play{background:var(--pee)}
+.copeau h2{font-family:"Patrick Hand","Comic Sans MS",cursive;font-size:32px;color:#e9805a}
+.copeau .play{background:#e9805a}
+.clocher h2{font-family:"Alfa Slab One",Rockwell,Georgia,serif;color:#9ad45a}
+.clocher .play{background:#9ad45a}
+footer{margin-top:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){.game{transition:none}.game:hover{transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Jeux de Pause</h1>
+    <p>Deux petits jeux à lancer pendant qu'une compilation tourne ou qu'un vernis sèche. Rien à installer, ça marche dans le navigateur.</p>
+  </header>
+
+  <main class="games">
+    <a class="game planches" href="/pile-de-planches/">
+      <div class="thumb"><img src="/img/atelier.jpg" alt="Mur d'atelier avec scie, rabot et serre-joints sous une lampe"></div>
+      <div class="body">
+        <h2>Pile de Planches</h2>
+        <p>Empile des planches de 18 mm en 3D isométrique. Lâche-les bien alignées : tout ce qui dépasse part à la scie, et la pile se rétrécit.</p>
+        <div class="meta"><span>1 joueur</span><span>Espace ou clic</span><span class="play">Jouer</span></div>
+      </div>
+    </a>
+
+    <a class="game vessies" href="/guerre-des-vessies/">
+      <div class="thumb"><canvas id="vthumb" width="192" height="108" aria-label="Aperçu du bistrot en pixel art"></canvas></div>
+      <div class="body">
+        <h2>Guerre des Vessies</h2>
+        <p>Vue subjective dans un bistrot. Bois pour remplir ta vessie, mange du piment ou des champignons douteux pour charger ton jet, et arrose les bots.</p>
+        <div class="meta"><span>Solo contre 3 bots</span><span>Clavier + souris</span><span class="play">Jouer</span></div>
+      </div>
+    </a>
+
+    <a class="game copeau" href="/saute-copeau/">
+      <div class="thumb"><canvas id="cthumb" width="320" height="180" aria-label="Aperçu de Copeau qui saute sur des planches"></canvas></div>
+      <div class="body">
+        <h2>Saute-Copeau</h2>
+        <p>Un copeau de bois rebondit de planche en planche sur du papier millimétré. Évite les planches vermoulues, prends les ressorts et écrase les termites.</p>
+        <div class="meta"><span>1 joueur</span><span>Flèches ou tactile</span><span class="play">Jouer</span></div>
+      </div>
+    </a>
+
+    <a class="game clocher" href="/clocher-contre-clocher/">
+      <div class="thumb"><canvas id="kthumb" width="320" height="180" aria-label="Aperçu de deux clochers qui s'affrontent"></canvas></div>
+      <div class="body">
+        <h2>Clocher contre Clocher</h2>
+        <p>Le village d'en face a volé la cloche. Recrute paysans, lanceurs de camembert et tracteurs, fais grandir ton hameau, et va raser leur clocher.</p>
+        <div class="meta"><span>1 joueur</span><span>Souris ou 1 2 3</span><span class="play">Jouer</span></div>
+      </div>
+    </a>
+  </main>
+
+  <footer>Fait pour patienter.</footer>
+</div>
+<script>
+// petite vignette pixel du bistrot : murs en brique, carrelage, et un jet jaune
+(()=>{const c=document.getElementById('vthumb');if(!c)return;const g=c.getContext('2d'),W=192,H=108;
+let gr=g.createLinearGradient(0,0,0,H/2);gr.addColorStop(0,'#1d120b');gr.addColorStop(1,'#4a2f1c');g.fillStyle=gr;g.fillRect(0,0,W,H/2);
+gr=g.createLinearGradient(0,H/2,0,H);gr.addColorStop(0,'#3a3a30');gr.addColorStop(1,'#8a8a78');g.fillStyle=gr;g.fillRect(0,H/2,W,H/2);
+const walls=[[0,40,'#8e4a32',.9],[40,30,'#d9e6e3',.55],[70,52,'#8e4a32',.35],[122,30,'#6b3f22',.55],[152,40,'#8e4a32',.9]];
+for(const [x,w,col,s] of walls){const h=H*s*1.4;g.fillStyle=col;g.fillRect(x,H/2-h*.45,w,h);g.fillStyle=`rgba(18,10,6,${.8-s*.7})`;g.fillRect(x,H/2-h*.45,w,h);
+  g.fillStyle='rgba(0,0,0,.25)';for(let y=H/2-h*.45;y<H/2+h*.55;y+=4)g.fillRect(x,y,w,1)}
+// bonhomme
+const bx=118,by=70;g.fillStyle='#2b3a6b';g.fillRect(bx+3,by+10,3,8);g.fillRect(bx+8,by+10,3,8);g.fillStyle='#3f8ee8';g.fillRect(bx+1,by,12,11);
+g.fillStyle='#f0c9a0';g.beginPath();g.arc(bx+7,by-4,5,0,7);g.fill();g.fillStyle='#000';g.fillRect(bx+4,by-5,2,2);g.fillRect(bx+8,by-5,2,2);
+g.fillStyle='#000';g.fillRect(bx-6,by-18,26,7);g.fillStyle='#f4d73a';g.font='bold 6px sans-serif';g.textAlign='center';g.fillText('[bot]',bx+7,by-12);
+// jet
+g.fillStyle='#ff6b1f';for(let i=0;i<40;i++){const t=i/40,x=96-t*70+(Math.random()-.5)*2,y=104-Math.sin(t*Math.PI)*34-t*6;g.fillRect(x,y,2,2)}
+// viseur
+g.strokeStyle='rgba(255,255,255,.8)';g.beginPath();g.moveTo(W/2-5,H/2);g.lineTo(W/2+5,H/2);g.moveTo(W/2,H/2-5);g.lineTo(W/2,H/2+5);g.stroke();
+})();
+// vignette Saute-Copeau : papier millimétré, planches, copeau en l'air
+(()=>{const c=document.getElementById('cthumb');if(!c)return;const g=c.getContext('2d'),W=320,H=180;
+g.fillStyle='#e9f1f7';g.fillRect(0,0,W,H);g.fillStyle='#d3e1ec';for(let x=0;x<W;x+=10)g.fillRect(x,0,1,H);for(let y=0;y<H;y+=10)g.fillRect(0,y,W,1);
+g.fillStyle='#a9c3d8';for(let x=0;x<W;x+=50)g.fillRect(x,0,1,H);for(let y=0;y<H;y+=50)g.fillRect(0,y,W,1);
+const pl=[[40,150,'#c8955a'],[150,118,'#e0b48a'],[230,80,'#7a5636'],[90,60,'#c8955a'],[200,30,'#c8955a']];
+for(const [x,y,c2] of pl){g.fillStyle=c2;g.strokeStyle='#1f3550';g.lineWidth=2;g.fillRect(x,y,62,11);g.strokeRect(x,y,62,11)}
+g.strokeStyle='#5a6672';g.beginPath();for(let i=0;i<=6;i++)g.lineTo(165+(i%2?12:0),118-i*2);g.stroke();
+const cx=128,cy=86;g.fillStyle='#e3bf86';g.strokeStyle='#1f3550';g.lineWidth=2;g.beginPath();g.arc(cx,cy,15,0,7);g.fill();g.stroke();
+g.strokeStyle='#b07f45';g.lineWidth=1.5;g.beginPath();for(let a=0;a<Math.PI*4;a+=.2){const r=2+a;g.lineTo(cx-3+Math.cos(a)*r,cy+2+Math.sin(a)*r*.8)}g.stroke();
+g.fillStyle='#fff';g.strokeStyle='#1f3550';g.lineWidth=1;for(const d of [1,10]){g.beginPath();g.ellipse(cx+d,cy-5,3.5,4.5,0,0,7);g.fill();g.stroke()}g.fillStyle='#1f3550';g.fillRect(cx+2,cy-7,2,3);g.fillRect(cx+11,cy-7,2,3);
+g.fillStyle='#1f3550';g.fillRect(cx-9,cy+13,6,4);g.fillRect(cx+3,cy+13,6,4);
+g.fillStyle='#8a3a1c';for(const [x,r] of [[262,5],[271,6],[281,5]]){g.beginPath();g.arc(x,40,r,0,7);g.fill()}
+})();
+// vignette Clocher contre Clocher : deux clochers et des villageois
+(()=>{const c=document.getElementById('kthumb');if(!c)return;const g=c.getContext('2d'),W=320,H=180,GY=140;
+let gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#8fc3e8');gr.addColorStop(1,'#d9ecf2');g.fillStyle=gr;g.fillRect(0,0,W,H);
+g.fillStyle='#9cc27a';g.beginPath();g.moveTo(0,GY);for(let x=0;x<=W;x+=20)g.lineTo(x,GY-24-Math.sin(x/40)*10);g.lineTo(W,GY);g.fill();
+g.fillStyle='#6b8f45';g.fillRect(0,GY,W,H-GY);g.fillStyle='#b99a6a';g.fillRect(0,GY+3,W,10);
+const tower=(x,col)=>{g.fillStyle='#d6cdb8';g.strokeStyle='#3a3427';g.lineWidth=1.5;g.fillRect(x-14,GY-64,28,64);g.strokeRect(x-14,GY-64,28,64);
+  g.fillStyle='#8a5a3a';g.beginPath();g.moveTo(x-17,GY-64);g.lineTo(x,GY-96);g.lineTo(x+17,GY-64);g.closePath();g.fill();g.stroke();
+  g.fillStyle='#fff';g.beginPath();g.arc(x,GY-50,5,0,7);g.fill();g.stroke();g.fillStyle=col;g.beginPath();g.moveTo(x,GY-104);g.lineTo(x+(x<160?12:-12),GY-101);g.lineTo(x,GY-98);g.fill();
+  g.strokeStyle='#3a3427';g.beginPath();g.moveTo(x,GY-96);g.lineTo(x,GY-106);g.stroke()};
+tower(30,'#3f6fd8');tower(290,'#d8463f');
+const guy=(x,col,dir)=>{g.fillStyle='#2b2b3a';g.fillRect(x-3,GY-8,2,8);g.fillRect(x+1,GY-8,2,8);g.fillStyle=col;g.fillRect(x-4,GY-19,8,11);g.fillStyle='#f0c9a0';g.beginPath();g.arc(x,GY-23,3.5,0,7);g.fill();
+  g.strokeStyle='#7a5636';g.lineWidth=1.5;g.beginPath();g.moveTo(x+dir*4,GY-8);g.lineTo(x+dir*7,GY-30);g.stroke()};
+for(const x of [90,110,128])guy(x,'#3f6fd8',1);for(const x of [190,210,232])guy(x,'#d8463f',-1);
+g.fillStyle='#f3e3a0';g.strokeStyle='#000';g.lineWidth=1;g.beginPath();g.arc(160,GY-52,4,0,7);g.fill();g.stroke();
+g.fillStyle='#222';g.beginPath();g.arc(250,GY-8,9,0,7);g.fill();g.fillStyle='#d8463f';g.fillRect(242,GY-24,24,12);
+})();
+</script>
+</body>
+</html>
