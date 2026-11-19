@@ -8,6 +8,9 @@ Petits jeux à lancer dans le navigateur en attendant quelque chose. Site statiq
 | Guerre des Vessies | `guerre-des-vessies/` | Vue subjective dans un bistrot : boire, manger, arroser les bots |
 | Saute-Copeau | `saute-copeau/` | Faire monter un copeau de bois de planche en planche |
 | Clocher contre Clocher | `clocher-contre-clocher/` | Bataille en ligne entre deux villages à travers cinq âges, avec défenses de clocher revendables |
+| Carreau ! | `carreau/` | Pétanque en 7 points contre Papy Marcel, pointer ou tirer |
+| Casse-Nœuds | `casse-noeuds/` | Casse-briques en planches de bois, six meubles à démonter |
+| Le Facteur à Vélo | `facteur-a-velo/` | Course sans fin sur la route du village, sauts et sonnette |
 
 ## Lancer en local
 

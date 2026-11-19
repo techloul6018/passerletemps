@@ -7,7 +7,7 @@
 <meta name="description" content="Deux petits jeux à lancer en attendant quelque chose : Pile de Planches et Guerre des Vessies.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bowlby+One&family=Bungee&family=Patrick+Hand&family=Rubik:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bowlby+One&family=Bungee&family=Chewy&family=Lobster&family=Patrick+Hand&family=Righteous&family=Rubik:wght@400;600&display=swap">
 <style>
 /* Layout: a short header, then two game cards side by side that stack on phones */
 :root{
@@ -45,6 +45,12 @@ header p{margin:0;color:var(--muted);max-width:56ch}
 .copeau .play{background:#e9805a}
 .clocher h2{font-family:"Alfa Slab One",Rockwell,Georgia,serif;color:#9ad45a}
 .clocher .play{background:#9ad45a}
+.carreau h2{font-family:"Lobster","Brush Script MT",cursive;font-size:32px;color:#f2c14e}
+.carreau .play{background:#f2c14e}
+.noeuds h2{font-family:"Righteous","Arial Black",sans-serif;color:#ff8a3d}
+.noeuds .play{background:#ff8a3d}
+.facteur h2{font-family:"Chewy","Comic Sans MS",cursive;font-size:30px;color:#7fb2ef}
+.facteur .play{background:#7fb2ef}
 footer{margin-top:40px;color:var(--muted);font-size:13px}
 @media (prefers-reduced-motion:reduce){.game{transition:none}.game:hover{transform:none}}
 </style>
@@ -92,6 +98,33 @@ footer{margin-top:40px;color:var(--muted);font-size:13px}
         <div class="meta"><span>6 niveaux · 5 âges</span><span>Souris ou tactile</span><span class="play">Jouer</span></div>
       </div>
     </a>
+
+    <a class="game carreau" href="/carreau/">
+      <div class="thumb"><canvas id="pthumb" width="320" height="180" aria-label="Aperçu de boules de pétanque autour du cochonnet"></canvas></div>
+      <div class="body">
+        <h2>Carreau !</h2>
+        <p>Une partie de pétanque en 7 points contre Papy Marcel, sous les platanes. Pointe pour approcher le cochonnet, tire pour dégommer sa boule.</p>
+        <div class="meta"><span>Contre Papy Marcel</span><span>Tire et relâche</span><span class="play">Jouer</span></div>
+      </div>
+    </a>
+
+    <a class="game noeuds" href="/casse-noeuds/">
+      <div class="thumb"><canvas id="nthumb" width="320" height="180" aria-label="Aperçu de planches à casser et d'une cale à poncer"></canvas></div>
+      <div class="body">
+        <h2>Casse-Nœuds</h2>
+        <p>Renvoie un nœud de bois avec ta cale à poncer pour démonter six meubles. Pin, chêne, noyer et clous, plus de la colle et des échardes.</p>
+        <div class="meta"><span>6 plans</span><span>Souris ou doigt</span><span class="play">Jouer</span></div>
+      </div>
+    </a>
+
+    <a class="game facteur" href="/facteur-a-velo/">
+      <div class="thumb"><canvas id="fthumb" width="320" height="180" aria-label="Aperçu du facteur à vélo sur une route de campagne"></canvas></div>
+      <div class="body">
+        <h2>Le Facteur à Vélo</h2>
+        <p>Pédale sur la route du village, ramasse les lettres et saute par-dessus les nids-de-poule. La sonnette fait fuir les poules, pas les chiens.</p>
+        <div class="meta"><span>Sans fin</span><span>Tap pour sauter</span><span class="play">Jouer</span></div>
+      </div>
+    </a>
   </main>
 
   <footer>Fait pour patienter.</footer>
@@ -125,6 +158,39 @@ g.strokeStyle='#b07f45';g.lineWidth=1.5;g.beginPath();for(let a=0;a<Math.PI*4;a+
 g.fillStyle='#fff';g.strokeStyle='#1f3550';g.lineWidth=1;for(const d of [1,10]){g.beginPath();g.ellipse(cx+d,cy-5,3.5,4.5,0,0,7);g.fill();g.stroke()}g.fillStyle='#1f3550';g.fillRect(cx+2,cy-7,2,3);g.fillRect(cx+11,cy-7,2,3);
 g.fillStyle='#1f3550';g.fillRect(cx-9,cy+13,6,4);g.fillRect(cx+3,cy+13,6,4);
 g.fillStyle='#8a3a1c';for(const [x,r] of [[262,5],[271,6],[281,5]]){g.beginPath();g.arc(x,40,r,0,7);g.fill()}
+})();
+// vignette Carreau : gravier, cochonnet, boules
+(()=>{const c=document.getElementById('pthumb');if(!c)return;const g=c.getContext('2d'),W=320,H=180;
+g.fillStyle='#4a6a3a';g.fillRect(0,0,W,H);g.fillStyle='#d8c49a';g.fillRect(14,10,292,160);
+for(let i=0;i<1400;i++){g.fillStyle=Math.random()<.5?'rgba(120,95,60,.35)':'rgba(255,250,235,.45)';g.fillRect(14+Math.random()*292,10+Math.random()*160,1.5,1.5)}
+g.fillStyle='rgba(30,50,20,.2)';g.beginPath();g.ellipse(70,50,70,40,0,0,7);g.fill();g.strokeStyle='#6a4a2a';g.lineWidth=5;g.strokeRect(12,8,296,164);
+const b=(x,y,me)=>{const gr=g.createRadialGradient(x-4,y-4,1,x,y,12);if(me){gr.addColorStop(0,'#fff');gr.addColorStop(.4,'#b8c8dc');gr.addColorStop(1,'#4a5a70')}else{gr.addColorStop(0,'#fff0d8');gr.addColorStop(.4,'#d09a5a');gr.addColorStop(1,'#6a4020')}
+  g.fillStyle='rgba(40,30,15,.35)';g.beginPath();g.ellipse(x+3,y+4,12,9,0,0,7);g.fill();g.fillStyle=gr;g.beginPath();g.arc(x,y,12,0,7);g.fill();g.strokeStyle='rgba(0,0,0,.4)';g.lineWidth=1;g.stroke()};
+g.fillStyle='#e8a83a';g.beginPath();g.arc(165,82,6,0,7);g.fill();b(140,92,1);b(196,70,0);b(178,112,0);b(120,60,1);
+g.setLineDash([3,3]);g.strokeStyle='#3a5a8a';g.beginPath();g.moveTo(165,82);g.lineTo(140,92);g.stroke();g.setLineDash([]);g.fillStyle='#1a1a10';g.font='bold 11px sans-serif';g.fillText('48 cm',128,112);
+})();
+// vignette Casse-Nœuds : contreplaqué, planches, cale
+(()=>{const c=document.getElementById('nthumb');if(!c)return;const g=c.getContext('2d'),W=320,H=180;
+g.fillStyle='#e9d2a8';g.fillRect(0,0,W,H);g.strokeStyle='rgba(150,110,60,.2)';for(let i=0;i<20;i++){g.beginPath();g.moveTo(0,i*9);g.lineTo(W,i*9+Math.random()*4);g.stroke()}
+const cols={p:'#ecd09a',c:'#c8955a',n:'#7a5238',x:'#9aa4ae',b:'#e9c46a'};const rows=['nnnnnnnnnn','ccbccccbcc','pp..xx..pp','pppppppppp'];
+rows.forEach((r,ri)=>[...r].forEach((ch,ci)=>{if(ch==='.')return;g.fillStyle=cols[ch];g.fillRect(12+ci*30,14+ri*16,28,14);g.strokeStyle='rgba(40,20,5,.55)';g.strokeRect(12.5+ci*30,14.5+ri*16,27,13)}));
+g.fillStyle='#c9a06a';g.fillRect(130,160,64,9);g.fillStyle='#4a4038';g.fillRect(130,157,64,4);g.strokeStyle='#000';g.strokeRect(130,157,64,12);
+const gr=g.createRadialGradient(176,118,1,178,120,7);gr.addColorStop(0,'#b07a4a');gr.addColorStop(1,'#3a2210');g.fillStyle=gr;g.beginPath();g.arc(178,120,6,0,7);g.fill();
+g.fillStyle='#7ec4f0';g.strokeStyle='#000';g.beginPath();g.rect(240,100,40,14);g.fill();g.stroke();g.fillStyle='#1a1008';g.font='bold 8px sans-serif';g.fillText('RALLONGE',243,110);
+})();
+// vignette Facteur à Vélo : route, poule, facteur
+(()=>{const c=document.getElementById('fthumb');if(!c)return;const g=c.getContext('2d'),W=320,H=180,GY=130;
+const s=g.createLinearGradient(0,0,0,GY);s.addColorStop(0,'#8ac0e0');s.addColorStop(1,'#c8e6f4');g.fillStyle=s;g.fillRect(0,0,W,GY);
+g.fillStyle='#8fb87a';g.beginPath();g.moveTo(0,GY);for(let x=0;x<=W;x+=10)g.lineTo(x,GY-36-Math.sin(x/50)*12);g.lineTo(W,GY);g.fill();
+g.fillStyle='#4a7a3a';for(let x=10;x<W;x+=60){g.fillRect(x+4,GY-30,2,16);g.beginPath();g.ellipse(x+5,GY-44,6,18,0,0,7);g.fill()}
+g.fillStyle='#6aa04a';g.fillRect(0,GY-10,W,12);g.fillStyle='#7a7a80';g.fillRect(0,GY,W,H-GY);g.fillStyle='#f3eedd';for(let x=0;x<W;x+=40)g.fillRect(x,GY+22,20,3);
+g.strokeStyle='#1a1a1a';g.lineWidth=2;for(const cx of [62,90]){g.beginPath();g.arc(cx,GY-8,8,0,7);g.stroke()}
+g.strokeStyle='#2f5fa8';g.lineWidth=2;g.beginPath();g.moveTo(62,GY-8);g.lineTo(73,GY-8);g.lineTo(82,GY-21);g.lineTo(68,GY-21);g.closePath();g.moveTo(82,GY-21);g.lineTo(90,GY-8);g.stroke();
+g.fillStyle='#2f5fa8';g.beginPath();g.moveTo(66,GY-26);g.lineTo(72,GY-42);g.lineTo(78,GY-40);g.lineTo(72,GY-25);g.fill();g.fillStyle='#f0c9a0';g.beginPath();g.arc(75,GY-47,5,0,7);g.fill();g.fillStyle='#22406a';g.fillRect(70,GY-54,10,4);
+g.fillStyle='#8a5a32';g.fillRect(52,GY-22,8,8);
+g.fillStyle='#fff';g.strokeStyle='#2a2418';g.lineWidth=1;g.fillRect(150,GY-64,16,11);g.strokeRect(150,GY-64,16,11);g.fillRect(180,GY-72,16,11);g.strokeRect(180,GY-72,16,11);
+g.fillStyle='#fff';g.beginPath();g.ellipse(240,GY-8,9,7,0,0,7);g.fill();g.stroke();g.beginPath();g.arc(233,GY-15,4,0,7);g.fill();g.stroke();g.fillStyle='#d8263a';g.beginPath();g.arc(233,GY-20,2,0,7);g.fill();
+g.fillStyle='#2a2a2e';g.beginPath();g.ellipse(290,GY+4,16,4,0,0,7);g.fill();
 })();
 // vignette Clocher contre Clocher : deux clochers et des villageois
 (()=>{const c=document.getElementById('kthumb');if(!c)return;const g=c.getContext('2d'),W=320,H=180,GY=140;
