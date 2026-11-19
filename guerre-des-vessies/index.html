@@ -23,7 +23,21 @@
 }
 html,body{height:100%}
 body{background:var(--night);color:var(--ink);font-family:var(--body);overflow:hidden;user-select:none;-webkit-user-select:none}
-#stage{position:relative;height:100%;overflow:hidden;cursor:crosshair}
+#stage{position:relative;height:100%;overflow:hidden;cursor:crosshair;touch-action:none}
+#touch{position:absolute;inset:0;pointer-events:none}
+#look{position:absolute;right:0;top:0;bottom:0;width:58%;pointer-events:auto;touch-action:none}
+#joy{position:absolute;left:max(22px,env(safe-area-inset-left,0px));bottom:max(22px,env(safe-area-inset-bottom,0px));width:132px;height:132px;border-radius:50%;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.35);pointer-events:auto;touch-action:none}
+#knob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(244,215,58,.85);border:2px solid #000;pointer-events:none}
+#peeBtn{position:absolute;right:max(22px,env(safe-area-inset-right,0px));bottom:max(26px,env(safe-area-inset-bottom,0px));width:100px;height:100px;border-radius:50%;background:rgba(244,215,58,.88);border:3px solid #000;box-shadow:0 4px 0 #000;font:400 16px var(--display);color:#231a05;pointer-events:auto;touch-action:none}
+#peeBtn.on{transform:translateY(3px);box-shadow:0 1px 0 #000}
+body.touch #gauges{bottom:auto;top:10px;width:min(190px,38vw)}
+body.touch .gauge{grid-template-columns:52px 1fr 28px;font-size:10px}
+body.touch #feed{top:70px;font-size:11px;max-width:40vw}
+body.touch #board{font-size:11px;min-width:0;padding:6px 8px;top:10px}
+body.touch #board h3{font-size:10px}
+body.touch #chips{bottom:auto;top:10px;max-width:30vw}
+body.touch #pop{top:30%}
+body.touch .back{display:none}
 #game,#hud{position:absolute;inset:0;width:100%;height:100%;display:block}
 #game{image-rendering:pixelated;image-rendering:crisp-edges}
 #hud{pointer-events:none}
@@ -90,6 +104,12 @@ h2:first-child{margin-top:0}
     <div class="gauge"><span>Vessie</span><div class="bar" id="blBar"><i></i></div><b id="blTxt">40</b></div>
   </div>
 
+  <div id="touch" hidden>
+    <div id="look"></div>
+    <div id="joy"><div id="knob"></div></div>
+    <button id="peeBtn" type="button">Pipi</button>
+  </div>
+
   <div id="start">
     <div class="card">
       <div>
@@ -109,6 +129,7 @@ h2:first-child{margin-top:0}
           <dt>Souris</dt><dd>Viser (haut = plus loin)</dd>
           <dt>Clic ou Espace</dt><dd>Faire pipi (maintenir)</dd>
           <dt>Flèches</dt><dd>Viser sans souris</dd>
+          <dt>Téléphone</dt><dd>Joystick à gauche pour bouger, glisse à droite pour viser, bouton Pipi pour arroser. Plus confortable à l'horizontale.</dd>
         </dl>
         <h2>À boire : remplit la vessie</h2>
         <div class="legend" id="legDrinks"></div>
@@ -390,11 +411,32 @@ addEventListener('keydown',e=>{if(!playing)return;keys[e.code]=true;if(['Space',
 addEventListener('keyup',e=>{keys[e.code]=false});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouseDown=false});
 let mouseDown=false;
-stage.addEventListener('pointerdown',e=>{if(!playing||e.button!==0)return;mouseDown=true;
+// ---------- commandes tactiles ----------
+let isTouch=false,touchPee=false;const joy={id:null,x:0,y:0},look={id:null,x:0,y:0};
+const touchEl=document.getElementById('touch'),joyEl=document.getElementById('joy'),knob=document.getElementById('knob'),lookEl=document.getElementById('look'),peeBtn=document.getElementById('peeBtn');
+function enableTouch(){if(isTouch)return;isTouch=true;document.body.classList.add('touch');touchEl.hidden=!playing;hint.hidden=true}
+addEventListener('pointerdown',e=>{if(e.pointerType==='touch')enableTouch()},true);
+try{if(matchMedia('(pointer:coarse)').matches)enableTouch()}catch(e){}
+function joyMove(e){const r=joyEl.getBoundingClientRect(),R=r.width/2;let dx=(e.clientX-r.left-R)/R,dy=(e.clientY-r.top-R)/R;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}
+  joy.x=Math.abs(dx)<.12?0:dx;joy.y=Math.abs(dy)<.12?0:dy;knob.style.transform=`translate(${dx*R*.6}px,${dy*R*.6}px)`}
+joyEl.addEventListener('pointerdown',e=>{e.preventDefault();joy.id=e.pointerId;try{joyEl.setPointerCapture(e.pointerId)}catch(err){}joyMove(e)});
+joyEl.addEventListener('pointermove',e=>{if(e.pointerId===joy.id)joyMove(e)});
+const joyEnd=e=>{if(e.pointerId!==joy.id)return;joy.id=null;joy.x=joy.y=0;knob.style.transform=''};
+joyEl.addEventListener('pointerup',joyEnd);joyEl.addEventListener('pointercancel',joyEnd);
+lookEl.addEventListener('pointerdown',e=>{e.preventDefault();look.id=e.pointerId;look.x=e.clientX;look.y=e.clientY;try{lookEl.setPointerCapture(e.pointerId)}catch(err){}});
+lookEl.addEventListener('pointermove',e=>{if(e.pointerId!==look.id||!playing)return;me.a+=(e.clientX-look.x)*.007;me.pt=Math.max(-.35,Math.min(.55,me.pt-(e.clientY-look.y)*.004));look.x=e.clientX;look.y=e.clientY});
+const lookEnd=e=>{if(e.pointerId===look.id)look.id=null};
+lookEl.addEventListener('pointerup',lookEnd);lookEl.addEventListener('pointercancel',lookEnd);
+peeBtn.addEventListener('pointerdown',e=>{e.preventDefault();touchPee=true;peeBtn.classList.add('on');try{peeBtn.setPointerCapture(e.pointerId)}catch(err){}});
+const peeEnd=()=>{touchPee=false;peeBtn.classList.remove('on')};
+peeBtn.addEventListener('pointerup',peeEnd);peeBtn.addEventListener('pointercancel',peeEnd);
+peeBtn.addEventListener('contextmenu',e=>e.preventDefault());
+
+stage.addEventListener('pointerdown',e=>{if(!playing||e.button!==0||e.pointerType!=='mouse')return;mouseDown=true;
   if(document.pointerLockElement!==stage&&stage.requestPointerLock){try{const r=stage.requestPointerLock();if(r&&r.catch)r.catch(()=>{})}catch(err){}}});
 addEventListener('pointerup',()=>{mouseDown=false});
 document.addEventListener('mousemove',e=>{if(!playing||document.pointerLockElement!==stage)return;me.a+=e.movementX*.0026;me.pt=Math.max(-.35,Math.min(.55,me.pt-e.movementY*.0022))});
-document.addEventListener('pointerlockchange',()=>{hint.hidden=!playing||document.pointerLockElement===stage});
+document.addEventListener('pointerlockchange',()=>{hint.hidden=!playing||isTouch||document.pointerLockElement===stage});
 
 // ================= son =================
 let ac=null,peeGain=null;
@@ -427,10 +469,11 @@ function update(dt){
       if(keys.ArrowLeft)me.a-=2.4*dt;if(keys.ArrowRight)me.a+=2.4*dt;
       if(keys.ArrowUp)me.pt=Math.min(.55,me.pt+.8*dt);if(keys.ArrowDown)me.pt=Math.max(-.35,me.pt-.8*dt);
       let f=(keys.KeyW?1:0)-(keys.KeyS?1:0),s=(keys.KeyD?1:0)-(keys.KeyA?1:0);
+      if(joy.id!==null){f=-joy.y;s=joy.x}
       let sp=2.6*(me.turbo>0?1.4:1)*(me.slow>0?.5:1)*(me.bl>=95?.75:1)*dt;
       if(f&&s){f*=.707;s*=.707}
       moveEnt(me,(Math.cos(me.a)*f-Math.sin(me.a)*s)*sp,(Math.sin(me.a)*f+Math.cos(me.a)*s)*sp);
-      const want=mouseDown||keys.Space;
+      const want=mouseDown||keys.Space||touchPee;
       me.peeing=want&&me.bl>0;
       if(want&&me.bl<=0&&popT<=0)pop('Vessie vide : va boire !','#7cc8f2');
       if(me.peeing)me.bl=Math.max(0,me.bl-22*dt);
@@ -577,8 +620,8 @@ document.getElementById('go').addEventListener('click',()=>{
   pseudo=(pIn.value.trim()||'Pipou').slice(0,14);try{localStorage.setItem('gdv-prof',JSON.stringify({n:pseudo,c:color}))}catch(e){}
   audioInit();if(ac&&ac.state==='suspended')ac.resume();
   const p=spawnPoint();me.x=p.x;me.y=p.y;me.a=Math.random()*6;
-  document.getElementById('start').hidden=true;playing=true;hint.hidden=false;
-  if(stage.requestPointerLock){try{const r=stage.requestPointerLock();if(r&&r.catch)r.catch(()=>{})}catch(e){}}
+  document.getElementById('start').hidden=true;playing=true;hint.hidden=isTouch;touchEl.hidden=!isTouch;
+  if(!isTouch&&stage.requestPointerLock){try{const r=stage.requestPointerLock();if(r&&r.catch)r.catch(()=>{})}catch(e){}}
   addFeed('Bienvenue au Bistrot du Coin. Bois, mange, arrose.');
 });
 pIn.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('go').click()});

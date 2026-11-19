@@ -43,9 +43,10 @@ kbd{font:600 12px var(--body);border:1px solid var(--pencil);border-radius:3px;p
     <div class="card" id="card">
       <h1>Saute-Copeau</h1>
       <p>Copeau rebondit tout seul. Toi, tu le guides vers la gauche ou la droite pour qu'il monte le plus haut possible.</p>
-      <p>Les planches vermoulues cassent, les ressorts propulsent, et on écrase les termites en leur sautant dessus.</p>
+      <p>Les planches vermoulues cassent, les ressorts propulsent. Les termites s'écrasent en leur sautant dessus ou à coups de clous.</p>
       <button class="go" id="go" type="button">Sauter</button>
-      <p><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> · sur écran tactile, appuie à gauche ou à droite</p>
+      <p><b>Ordinateur :</b> <kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> pour diriger, clic ou <kbd>Espace</kbd> pour lancer un clou.</p>
+      <p><b>Téléphone :</b> penche-le pour diriger, touche l'écran pour lancer un clou vers ton doigt.</p>
     </div>
   </div>
 </div>
@@ -90,19 +91,51 @@ function gen(){
 let ac=null;
 function audio(){if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.state==='suspended')ac.resume()}
 function tone(f,d,type,vol,f2){if(!ac)return;const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d)}
-const sfx={boing(){tone(260,.12,'triangle',.18,520)},spring(){tone(200,.35,'square',.08,1100)},crack(){tone(160,.15,'sawtooth',.1,60)},squash(){tone(500,.1,'square',.1,120)},fall(){tone(600,.8,'triangle',.15,80)}};
+const sfx={boing(){tone(260,.12,'triangle',.18,520)},spring(){tone(200,.35,'square',.08,1100)},crack(){tone(160,.15,'sawtooth',.1,60)},squash(){tone(500,.1,'square',.1,120)},shoot(){tone(1400,.06,'square',.05,700)},fall(){tone(600,.8,'triangle',.15,80)}};
 
 // ---------- entrées ----------
 const keys={};
-addEventListener('keydown',e=>{keys[e.code]=true;if(['ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
+addEventListener('keydown',e=>{keys[e.code]=true;if(['ArrowLeft','ArrowRight','ArrowUp','Space'].includes(e.code))e.preventDefault();
+  if(state==='play'&&(e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW'||e.code==='KeyZ'))shoot(pl.x,pl.y-400);
   if((e.code==='Space'||e.code==='Enter')&&state!=='play'&&(state==='ready'||performance.now()-overAt>700))start()});
 addEventListener('keyup',e=>keys[e.code]=false);
-let touchDir=0;
-cv.addEventListener('pointerdown',e=>{touchDir=e.clientX<W/2?-1:1});
-addEventListener('pointerup',()=>touchDir=0);addEventListener('pointercancel',()=>touchDir=0);
-cv.addEventListener('pointermove',e=>{if(touchDir)touchDir=e.clientX<W/2?-1:1});
 
-function start(){audio();reset();state='play';ov.hidden=true}
+// inclinaison du téléphone (iOS demande la permission au moment du clic sur « Sauter »)
+let tilt=0,tiltOK=false,tiltListening=false;
+function listenTilt(){if(tiltListening)return;tiltListening=true;
+  addEventListener('deviceorientation',e=>{if(e.gamma==null)return;
+    const ang=(screen.orientation&&typeof screen.orientation.angle==='number')?screen.orientation.angle:(window.orientation||0);
+    const v=ang===90?e.beta:(ang===-90||ang===270)?-e.beta:ang===180?-e.gamma:e.gamma;
+    tilt=Math.max(-1,Math.min(1,v/22));tiltOK=true})}
+function askTilt(){try{if(typeof DeviceOrientationEvent==='undefined')return;
+  if(typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted')listenTilt()}).catch(()=>{})}
+  else listenTilt()}catch(e){}}
+
+// toucher : avec l'inclinaison, chaque toucher tire ; sans, les bords dirigent et le centre tire
+let touchDir=0,touchId=null;
+function toWorld(cx,cy){return{x:(cx-ox)/k,y:(cy-oy)/k+camY}}
+cv.addEventListener('pointerdown',e=>{
+  if(state!=='play')return;
+  const w=toWorld(e.clientX,e.clientY);
+  if(e.pointerType==='touch'&&!tiltOK){
+    if(e.clientX<W*.33){touchDir=-1;touchId=e.pointerId;return}
+    if(e.clientX>W*.67){touchDir=1;touchId=e.pointerId;return}
+  }
+  shoot(w.x,w.y);
+});
+const endTouch=e=>{if(e.pointerId===touchId){touchDir=0;touchId=null}};
+addEventListener('pointerup',endTouch);addEventListener('pointercancel',endTouch);
+
+// clous
+let nails=[],shootCd=0;
+function shoot(tx,ty){
+  if(state!=='play'||shootCd>0)return;shootCd=.18;
+  const sx=pl.x,sy=pl.y-18;let dx=tx-sx,dy=ty-sy;const l=Math.hypot(dx,dy)||1;dx/=l;dy/=l;
+  if(dy>-.35){dy=-.35;dx=Math.sign(dx||1)*Math.sqrt(1-dy*dy)}
+  nails.push({x:sx,y:sy,vx:dx*950,vy:dy*950});sfx.shoot();
+}
+
+function start(){audio();askTilt();reset();nails=[];state='play';ov.hidden=true}
 document.getElementById('go').addEventListener('click',start);
 
 function over(){
@@ -116,8 +149,14 @@ function over(){
 // ---------- boucle ----------
 function update(dt){
   if(state!=='play')return;
-  const dir=(keys.ArrowLeft||keys.KeyA||keys.KeyQ?-1:0)+(keys.ArrowRight||keys.KeyD?1:0)||touchDir;
-  pl.vx+=(dir*520-pl.vx)*Math.min(1,dt*9);if(dir)pl.face=dir;
+  let dir=(keys.ArrowLeft||keys.KeyA||keys.KeyQ?-1:0)+(keys.ArrowRight||keys.KeyD?1:0)||touchDir;
+  if(!dir&&tiltOK)dir=Math.abs(tilt)<.06?0:tilt;
+  pl.vx+=(dir*520-pl.vx)*Math.min(1,dt*9);if(Math.abs(dir)>.1)pl.face=Math.sign(dir);
+  shootCd=Math.max(0,shootCd-dt);
+  for(const n of nails){n.x+=n.vx*dt;n.y+=n.vy*dt;
+    for(const b of bugs){if(b.dead)continue;const bx=b.x+Math.sin(b.ph)*40,by=b.y+Math.sin(b.ph*1.7)*6;
+      if(Math.abs(n.x-bx)<20&&Math.abs(n.y-by)<16){b.dead=.001;n.hit=1;sfx.squash();for(let i=0;i<6;i++)bits.push({x:bx,y:by,vx:rand(-80,80),vy:rand(-120,0),l:.6,c:'#8a3a1c'});break}}}
+  nails=nails.filter(n=>!n.hit&&n.y>camY-40&&n.x>-20&&n.x<LW+20);
   const py0=pl.y;
   pl.vy+=G*dt;pl.x+=pl.vx*dt;pl.y+=pl.vy*dt;
   if(pl.x<-16)pl.x=LW+16;if(pl.x>LW+16)pl.x=-16;
@@ -173,6 +212,7 @@ function draw(){
   ctx.translate(0,-camY);
   for(const p of plats)drawPlat(p);
   for(const b of bugs)drawBug(b);
+  for(const n of nails){const a=Math.atan2(n.vy,n.vx);ctx.save();ctx.translate(n.x,n.y);ctx.rotate(a);ctx.fillStyle='#5a6672';ctx.fillRect(-10,-1,16,2);ctx.fillRect(-11,-3,2,6);ctx.beginPath();ctx.moveTo(6,-1);ctx.lineTo(10,0);ctx.lineTo(6,1);ctx.fill();ctx.restore()}
   for(const b of bits){ctx.globalAlpha=Math.max(0,b.l*1.6);ctx.fillStyle=b.c;ctx.fillRect(b.x,b.y,3,2)}ctx.globalAlpha=1;
   if(pl)drawCopeau();
   ctx.restore();
