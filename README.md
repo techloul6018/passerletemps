@@ -7,7 +7,7 @@ Petits jeux à lancer dans le navigateur en attendant quelque chose. Site statiq
 | Pile de Planches | `pile-de-planches/` | Empiler des planches de 18 mm en 3D isométrique, ce qui dépasse est scié |
 | Guerre des Vessies | `guerre-des-vessies/` | Vue subjective dans un bistrot : boire, manger, arroser les bots |
 | Saute-Copeau | `saute-copeau/` | Faire monter un copeau de bois de planche en planche |
-| Clocher contre Clocher | `clocher-contre-clocher/` | Bataille en ligne entre deux villages, du hameau à la cité |
+| Clocher contre Clocher | `clocher-contre-clocher/` | Bataille en ligne entre deux villages à travers cinq âges, avec défenses de clocher revendables |
 
 ## Lancer en local
 
