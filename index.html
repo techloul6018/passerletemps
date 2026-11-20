@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Jeux de Pause</title>
-<meta name="description" content="Deux petits jeux à lancer en attendant quelque chose : Pile de Planches et Guerre des Vessies.">
+<meta name="description" content="Petits jeux à lancer en attendant quelque chose : Pile de Planches, Guerre des Vessies, Schuss ! et les autres.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bowlby+One&family=Bungee&family=Chewy&family=Lobster&family=Patrick+Hand&family=Righteous&family=Rubik:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bowlby+One&family=Bungee&family=Chewy&family=Lobster&family=Patrick+Hand&family=Racing+Sans+One&family=Righteous&family=Rubik:wght@400;600&display=swap">
 <style>
 /* Layout: a short header, then two game cards side by side that stack on phones */
 :root{
@@ -51,6 +51,8 @@ header p{margin:0;color:var(--muted);max-width:56ch}
 .noeuds .play{background:#ff8a3d}
 .facteur h2{font-family:"Chewy","Comic Sans MS",cursive;font-size:30px;color:#7fb2ef}
 .facteur .play{background:#7fb2ef}
+.schuss h2{font-family:"Racing Sans One","Arial Black",sans-serif;font-size:30px;color:#62d8e8}
+.schuss .play{background:#62d8e8}
 footer{margin-top:40px;color:var(--muted);font-size:13px}
 @media (prefers-reduced-motion:reduce){.game{transition:none}.game:hover{transform:none}}
 </style>
@@ -123,6 +125,14 @@ footer{margin-top:40px;color:var(--muted);font-size:13px}
         <h2>Le Facteur à Vélo</h2>
         <p>Pédale sur la route du village, ramasse les lettres et saute par-dessus les nids-de-poule. La sonnette fait fuir les poules, pas les chiens.</p>
         <div class="meta"><span>Sans fin</span><span>Tap pour sauter</span><span class="play">Jouer</span></div>
+      </div>
+    </a>
+    <a class="game schuss" href="/schuss/">
+      <div class="thumb"><canvas id="sthumb" width="320" height="180" aria-label="Aperçu d'un skieur entre deux portes de slalom"></canvas></div>
+      <div class="body">
+        <h2>Schuss !</h2>
+        <p>Sept pistes à Saint-Glinglin-les-Neiges, de la verte des Marmottes à la tempête sur le glacier. Passe les portes, saute les tremplins, bats ton fantôme, et choisis ta tenue et tes skis au vestiaire.</p>
+        <div class="meta"><span>7 pistes</span><span>Flèches ou doigts</span><span class="play">Jouer</span></div>
       </div>
     </a>
   </main>
@@ -207,6 +217,26 @@ const guy=(x,col,dir)=>{g.fillStyle='#2b2b3a';g.fillRect(x-3,GY-8,2,8);g.fillRec
 for(const x of [90,110,128])guy(x,'#3f6fd8',1);for(const x of [190,210,232])guy(x,'#d8463f',-1);
 g.fillStyle='#f3e3a0';g.strokeStyle='#000';g.lineWidth=1;g.beginPath();g.arc(160,GY-52,4,0,7);g.fill();g.stroke();
 g.fillStyle='#222';g.beginPath();g.arc(250,GY-8,9,0,7);g.fill();g.fillStyle='#d8463f';g.fillRect(242,GY-24,24,12);
+})();
+// vignette Schuss : piste en perspective, portes, skieur de dos
+(()=>{const c=document.getElementById('sthumb');if(!c)return;const g=c.getContext('2d'),W=320,H=180,HZ=62;
+let gr=g.createLinearGradient(0,0,0,HZ);gr.addColorStop(0,'#4b9be0');gr.addColorStop(1,'#cfe9fb');g.fillStyle=gr;g.fillRect(0,0,W,HZ);
+gr=g.createLinearGradient(0,HZ-42,0,HZ);gr.addColorStop(0,'#f4f8fb');gr.addColorStop(.5,'#7f95b5');g.fillStyle=gr;g.beginPath();g.moveTo(0,HZ);
+for(const [x,y] of [[0,40],[40,22],[70,38],[110,14],[150,34],[190,20],[230,40],[270,18],[320,36]])g.lineTo(x,y);g.lineTo(W,HZ);g.fill();
+g.fillStyle='#d6e8f5';g.fillRect(0,HZ,W,H-HZ);g.fillStyle='#e8f0f8';g.beginPath();g.moveTo(150,HZ);g.lineTo(178,HZ);g.lineTo(330,H);g.lineTo(-10,H);g.fill();
+g.fillStyle='#fbfdff';g.beginPath();g.moveTo(154,HZ);g.lineTo(174,HZ);g.lineTo(310,H);g.lineTo(10,H);g.fill();
+const tree=(x,y,s)=>{g.fillStyle='#1d4a37';for(let i=0;i<3;i++){g.beginPath();g.moveTo(x-s*(1-i*.25),y-i*s*.7);g.lineTo(x,y-s*1.4-i*s*.7);g.lineTo(x+s*(1-i*.25),y-i*s*.7);g.fill()}g.fillStyle='#f4f8fc';g.beginPath();g.moveTo(x,y-s*2.8);g.lineTo(x-s*.35,y-s*2.1);g.lineTo(x+s*.35,y-s*2.1);g.fill()};
+for(const [x,y,s] of [[128,72,5],[118,82,7],[200,74,6],[218,88,9],[30,150,16],[292,140,15],[80,108,10],[255,110,11]])tree(x,y,s);
+const gate=(x,y,s,col)=>{for(const d of [-1,1]){const px=x+d*s*1.4;g.fillStyle='#fff';g.fillRect(px-1,y-s*2,2,s*2);g.fillStyle=col;g.fillRect(Math.min(px,px+d*s*.8),y-s*1.9,s*.8,s*.55)}};
+gate(172,76,4,'#e63946');gate(140,92,7,'#1b4fd8');gate(205,120,12,'#e63946');
+const x0=150,y0=166;g.fillStyle='rgba(25,45,85,.2)';g.beginPath();g.ellipse(x0,y0,26,5,0,0,7);g.fill();
+for(const d of [-1,1]){g.save();g.translate(x0+d*7,y0+8);g.rotate(.25);g.fillStyle='#1b4fd8';g.fillRect(-2.5,-40,5,40);g.fillStyle='#f2c14e';g.fillRect(-2.5,-12,5,6);g.restore()}
+g.save();g.translate(x0,y0);g.rotate(.22);g.fillStyle='#e63946';g.fillRect(-12,-40,9,36);g.fillRect(3,-40,9,36);g.beginPath();g.roundRect?g.roundRect(-13,-62,26,26,6):g.rect(-13,-62,26,26);g.fill();
+g.fillStyle='#f7fbff';g.fillRect(-3,-62,6,26);g.fillRect(-8,-56,16,10);g.fillStyle='#0f2340';g.font='bold 8px sans-serif';g.textAlign='center';g.fillText('7',0,-48);
+g.strokeStyle='#e63946';g.lineWidth=5;g.lineCap='round';for(const d of [-1,1]){g.beginPath();g.moveTo(d*11,-58);g.lineTo(d*16,-44);g.stroke()}
+g.strokeStyle='#c0c6cc';g.lineWidth=1.5;for(const d of [-1,1]){g.beginPath();g.moveTo(d*16,-44);g.lineTo(d*24,-2);g.stroke()}
+g.fillStyle='#0f2340';g.beginPath();g.arc(0,-70,8,Math.PI,0);g.lineTo(8,-66);g.lineTo(-8,-66);g.fill();g.fillStyle='#f2c14e';g.fillRect(-8,-70,16,3);g.restore();
+g.fillStyle='rgba(255,255,255,.9)';for(let i=0;i<14;i++)g.fillRect(118-i*3+Math.random()*4,160-Math.random()*10,2,2);
 })();
 </script>
 </body>

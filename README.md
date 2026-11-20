@@ -11,6 +11,7 @@ Petits jeux à lancer dans le navigateur en attendant quelque chose. Site statiq
 | Carreau ! | `carreau/` | Pétanque en 7 points contre Papy Marcel, pointer ou tirer |
 | Casse-Nœuds | `casse-noeuds/` | Casse-briques en planches de bois, six meubles à démonter |
 | Le Facteur à Vélo | `facteur-a-velo/` | Course sans fin sur la route du village, sauts et sonnette |
+| Schuss ! | `schuss/` | Descente à ski en pseudo-3D sur sept pistes, portes, tremplins, fantôme du record et vestiaire pour habiller le skieur et ses skis |
 
 ## Lancer en local
 
